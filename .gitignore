@@ -1,6 +1,7 @@
 *.pyc
 .idea
 .ropeproject
-examples
 *.txt
 *.png
+*.jpeg
+*.jpg
