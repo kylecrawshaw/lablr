@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import namedtuple
 
 from PIL import ImageFont, ImageDraw, Image, PngImagePlugin
@@ -23,9 +25,9 @@ class BaseRegion(object):
         return namedtuple('position', ('x', 'y'))(self.__x, self.__y)
 
     @position.setter
-    def position(self, (x, y)):
-        self.__x = x
-        self.__y = y
+    def position(self, coords):
+        self.__x = int(coords[0])
+        self.__y = int(coords[1])
 
     @property
     def size(self):
@@ -35,9 +37,9 @@ class BaseRegion(object):
         return namedtuple('size', ('width', 'height'))(self.__width, self.__height)
 
     @size.setter
-    def size(self, (width, height)):
-        self.__width = width
-        self.__height = height
+    def size(self, size):
+        self.__width = size[0]
+        self.__height = size[1]
 
     @property
     def position_below(self):
@@ -58,7 +60,9 @@ class BaseRegion(object):
         new_height = int(self.size.height * resize_ratio)
         self.size = (new_width, new_height)
 
-    def fit_within_bounds(self, (width, height)):
+    def fit_within_bounds(self, size):
+        width = size[0]
+        height = size[1]
         min_bounds = min(width, height)
         min_image = min(self.size.width, self.size.height)
         if min_image > min_bounds:
@@ -97,12 +101,13 @@ class ImageItem(BaseRegion):
 class TextItem(BaseRegion):
 
     def __init__(self, text, name, font_name='Arial.ttf', font_size=18,
-                 font_color=(0, 0, 0), bg_color=(255, 255, 255)):
+                 font_color=(0, 0, 0), bg_color=(255, 255, 255), padding=10):
         BaseRegion.__init__(self, name=name, bg_color=bg_color, type='text')
         self.text = text
         self.font_name = font_name
         self.font_size = font_size
         self.font_color = font_color
+        self.padding = padding
         self.size = self.font.getsize(text)
 
     @property
@@ -114,22 +119,22 @@ class TextItem(BaseRegion):
         return namedtuple('size', ('width', 'height'))(width, height)
 
     def render(self):
+        self.size = (self.size.width+(self.padding*2), self.size.height+(self.padding*2))
         BaseRegion.render(self)
         draw = ImageDraw.Draw(self.image)
-        draw.text((0, 0), self.text, self.font_color, font=self.font)
+        draw.text((self.padding, self.padding), self.text, self.font_color, font=self.font)
 
-    def fit_within_bounds(self, (width, height)):
+    def fit_within_bounds(self, size):
+        width = size[0]
+        height = size[1]
         BaseRegion.fit_within_bounds(self, (width, height))
         new_font_size = self.font_size
 
         if self.getsize(self.text).width >= self.size.width:
             while self.getsize(self.text).width >= self.size.width:
-                print self.size.width
-                print self.getsize(self.text)
                 self.font_size -= 1
         else:
             while self.getsize(self.text).width < self.size.width:
-                print self.getsize(self.text)
                 self.font_size += 1
         self.font_size = new_font_size
 
