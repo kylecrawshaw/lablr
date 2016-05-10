@@ -4,7 +4,7 @@ from lablr.helpers import get_qrcode
 
 def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
              subtitle='A Company', font_size=18, bg_color=(255, 255, 255)):
-    label = Region('label', size=(350, 215))
+    label = Region('label', size=(350, 200))
 
     split_region_width = label.size.width/2
     split_region_height = label.size.height
@@ -14,9 +14,10 @@ def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
         ImageItem(get_qrcode(qr_data), 'qrcode', bg_color=bg_color),
         align='center',
         vertical_align='middle',
-        size=(split_region_width, int(split_region_height*0.8)),
+        size=(split_region_width, int(split_region_height*0.87)),
         fit=True,
         bg_color=bg_color,
+        x_offset=5,
     )
 
     asset_region = SingleItemRegion(
@@ -27,6 +28,7 @@ def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
         size=(split_region_width, int(split_region_height*0.2)),
         position=qr_region.position_below,
         bg_color=bg_color,
+        y_offset=-10,
     )
 
     title_region = SingleItemRegion(
@@ -37,29 +39,31 @@ def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
         size=(split_region_width, int(split_region_height*0.2)),
         bg_color=bg_color,
         position=qr_region.position_right,
+        y_offset=10
+    )
+
+    logo = ImageItem(logo_path, 'logo', bg_color=bg_color)
+    logo.resize(0.5)
+    logo_region = SingleItemRegion(
+        'logo_region',
+        logo,
+        align='center',
+        size=(split_region_width, int(split_region_height*0.5)),
+        position=title_region.position_below,
+        bg_color=bg_color,
+        y_offset=20,
     )
 
     subtitle_region = SingleItemRegion(
         'company_region',
         TextItem(subtitle, 'subtitle', font_size=font_size, bg_color=bg_color),
         align='center',
-        vertical_align='middle',
+        vertical_align='top',
         size=(split_region_width, int(split_region_height*0.2)),
-        position=title_region.position_below,
+        position=logo_region.position_below,
         bg_color=bg_color,
     )
-
-    logo = ImageItem(logo_path, 'logo', bg_color=bg_color)
-    logo.resize(0.54)
-    logo_region = SingleItemRegion(
-        'logo_region',
-        logo,
-        align='center',
-        size=(split_region_width, int(split_region_height*0.6)),
-        position=subtitle_region.position_below,
-        bg_color=bg_color,
-        y_offset=20,
-    )
+    
 
     label.add_item(qr_region)
     label.add_item(asset_region)
@@ -70,7 +74,3 @@ def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
     label.save(output_path)
     return label
 
-label = qr_label('test_qr.png', 'https://google.com', 'edxlogo.png', 'ASSETS-10000',
-                 subtitle='edX.org', font_size=20, bg_color=(0, 0, 0)
-
-label.image.show()
