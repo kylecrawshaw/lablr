@@ -74,3 +74,7 @@ def qr_label(output_path, qr_data, logo_path, asset_id, title='Property Of',
     label.save(output_path)
     return label
 
+label = qr_label('test_qr.png', 'https://google.com', 'edxlogo.png', 'TAG-124',
+                 subtitle='edX.org', font_size=20,)
+
+label.image.show()
